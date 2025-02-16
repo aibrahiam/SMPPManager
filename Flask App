@@ -1,0 +1,44 @@
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://username:password@localhost/db_name'
+db = SQLAlchemy(app)
+
+# Define Models
+class ServiceNumber(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.String(20), nullable=False)
+    smpp_id = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    service_number_id = db.Column(db.Integer, db.ForeignKey('service_number.id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    direction = db.Column(db.Enum('sent', 'received'), nullable=False)
+    timestamp = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
+
+class Report(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    service_number_id = db.Column(db.Integer, db.ForeignKey('service_number.id'), nullable=False)
+    report_type = db.Column(db.Enum('daily', 'weekly', 'monthly'), nullable=False)
+    message_count = db.Column(db.Integer, nullable=False)
+    report_date = db.Column(db.Date, nullable=False)
+
+# Routes
+@app.route('/add_number', methods=['POST'])
+def add_number():
+    data = request.json
+    new_number = ServiceNumber(number=data['number'], smpp_id=data['smpp_id'])
+    db.session.add(new_number)
+    db.session.commit()
+    return jsonify({"message": "Number added successfully!"}), 201
+
+@app.route('/messages', methods=['GET'])
+def get_messages():
+    messages = Message.query.all()
+    return jsonify([{"id": msg.id, "message": msg.message, "direction": msg.direction} for msg in messages]), 200
+
+if __name__ == '__main__':
+    app.run(debug=True)
