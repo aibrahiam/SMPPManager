@@ -1,0 +1,11 @@
+<div id="messages"></div>
+<script>
+    fetch('/messages')
+        .then(response => response.json())
+        .then(data => {
+            const messagesDiv = document.getElementById('messages');
+            data.forEach(msg => {
+                messagesDiv.innerHTML += `<p>${msg.direction}: ${msg.message}</p>`;
+            });
+        });
+</script>
