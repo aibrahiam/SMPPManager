@@ -1,0 +1,24 @@
+CREATE TABLE service_numbers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    number VARCHAR(20) NOT NULL,
+    smpp_id VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    service_number_id INT,
+    message TEXT NOT NULL,
+    direction ENUM('sent', 'received') NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (service_number_id) REFERENCES service_numbers(id)
+);
+
+CREATE TABLE reports (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    service_number_id INT,
+    report_type ENUM('daily', 'weekly', 'monthly') NOT NULL,
+    message_count INT NOT NULL,
+    report_date DATE NOT NULL,
+    FOREIGN KEY (service_number_id) REFERENCES service_numbers(id)
+);
