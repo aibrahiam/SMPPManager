@@ -1,0 +1,4 @@
+@app.route('/reports', methods=['GET'])
+def get_reports():
+    reports = Report.query.all()
+    return jsonify([{"id": r.id, "report_type": r.report_type, "message_count": r.message_count} for r in reports]), 200
