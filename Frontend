@@ -1,0 +1,22 @@
+<form id="addNumberForm">
+    <label for="number">Service Number:</label>
+    <input type="text" id="number" name="number" required>
+    <label for="smpp_id">SMPP ID:</label>
+    <input type="text" id="smpp_id" name="smpp_id" required>
+    <button type="submit">Add Number</button>
+</form>
+
+<script>
+    document.getElementById('addNumberForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        fetch('/add_number', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                number: document.getElementById('number').value,
+                smpp_id: document.getElementById('smpp_id').value
+            })
+        }).then(response => response.json())
+          .then(data => alert(data.message));
+    });
+</script>
